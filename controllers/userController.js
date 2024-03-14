@@ -18,8 +18,8 @@ async function hashPassword(password) {
 
 // User signup API
 exports.signup = async (req, res) => {
+  console.log(req.body);
   const errors = validationResult(req);
-
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
@@ -125,7 +125,7 @@ exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
 
     // Generate a unique reset token and set an expiration time (e.g., 1 hour)
-    const resetToken = jwt.sign({ email }, process.env.JWT_SECRET, {
+    const resetToken = jwt.sign({ email }, process.nextTick.JWT_SECRET, {
       expiresIn: "1h",
     });
 
