@@ -188,9 +188,13 @@ exports.resetPassword = async (req, res) => {
 };
 
 exports.getUserProfile = async (req, res) => {
-  console.log(req.user, "Userrr");
-  const find = await UserModel.findOne({ _id: req.user.userId });
-  res.json(find);
+  try{
+    const user = await UserModel.findOne({ _id: req.user.userId });
+    console.log(user)
+    res.json(user);
+  }catch(error){
+    return res.status(500).json({message:'Something went wrong'})
+  }
 };
 exports.updateUserProfile = async (req, res) => {
   const { firstName, lastName, email, password, phoneNumber } = req.body;

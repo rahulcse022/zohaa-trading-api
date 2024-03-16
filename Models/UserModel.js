@@ -76,6 +76,9 @@ const UserSchema = new mongoose.Schema({
     updateToken:String,
     updateTokenExpiresAt: Number,
     updatedFields: Object,
+    
+}, {
+    timestamps:true
 });
 UserSchema.methods.toJSON = function(){
     const user = this;
