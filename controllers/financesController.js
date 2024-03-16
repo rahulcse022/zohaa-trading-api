@@ -49,3 +49,18 @@ exports.updateFuelAmount = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+exports.fundWallet = async (req, res) => {
+  try {
+    const info = await FinancesModel.findOne({
+      userId: req.user.userId,
+    });
+    info.walletBalance += req.body.walletFundedByAmount;
+    await info.save();
+    return res.json({
+      message: "Financial details updated successfully",
+      data: info,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

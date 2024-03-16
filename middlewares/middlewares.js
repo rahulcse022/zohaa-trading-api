@@ -8,6 +8,11 @@ middlewares.verifyUpdateOTP = [
 middlewares.fuelBot = [
   body("fueldByAmount").notEmpty().withMessage("Please send bot fueld amount."),
 ];
+middlewares.fundWallet = [
+  body("walletFundedByAmount")
+    .notEmpty()
+    .withMessage("Please send funded amount."),
+];
 middlewares.updateFinancialInfo = [
   body("portfolioAmount")
       .optional()

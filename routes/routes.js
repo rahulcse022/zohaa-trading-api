@@ -7,7 +7,7 @@ require("dotenv").config();
 
 const UserController = require("../controllers/userController");
 const middlewares = require("../middlewares/middlewares");
-const { getUserFinancialInfo, updateUserFinancialIndo, updateFuelAmount } = require("../controllers/financesController");
+const { getUserFinancialInfo, updateUserFinancialIndo, updateFuelAmount, fundWallet } = require("../controllers/financesController");
 
 router.use(bodyParser.json());
 router.use(
@@ -55,8 +55,8 @@ router.patch(
 router.patch(
   "/users/financial-info/fuel-bot",
   middlewares.verifyToken,
-  middlewares.validate(middlewares.fuelBot),
-  updateFuelAmount,
+  middlewares.validate(middlewares.fundWallet),
+  fundWallet,
 );
 
 // router.get("/getuserdetails", async (req, res) => {
