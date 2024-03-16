@@ -34,3 +34,18 @@ exports.updateUserFinancialIndo = async (req, res) => {
   }
 
 };
+exports.updateFuelAmount = async (req, res) => {
+  try {
+    const info = await FinancesModel.findOne({
+      userId: req.user.userId,
+    });
+    info.botFuel += req.body.fueldByAmount;
+    await info.save();
+    return res.json({
+      message: "Financial details updated successfully",
+      data: info,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

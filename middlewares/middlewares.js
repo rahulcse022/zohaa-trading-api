@@ -5,6 +5,9 @@ const middlewares = {};
 middlewares.verifyUpdateOTP = [
   body("otp").notEmpty().withMessage('Please send otp')
 ]
+middlewares.fuelBot = [
+  body("fueldByAmount").notEmpty().withMessage("Please send bot fueld amount."),
+];
 middlewares.updateFinancialInfo = [
   body("portfolioAmount")
       .optional()
