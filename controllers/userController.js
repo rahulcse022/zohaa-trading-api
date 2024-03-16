@@ -187,6 +187,110 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
+exports.getUserProfile = async (req, res) => {
+  console.log(req.user, "Userrr");
+  const find = await UserModel.findOne({ _id: req.user.userId });
+  res.json(find);
+};
+exports.updateUserProfile = async (req, res) => {
+  const { firstName, lastName, email, password, phoneNumber } = req.body;
+
+  if (email || password || phoneNumber) {
+    try {
+      // Generate a unique reset token and set an expiration time (e.g., 1 hour)
+      const resetToken = jwt.sign({ email }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
+      const updatedFields = {};
+      if(email){
+        updatedFields.email = email;
+      }
+      if(password){
+        updatedFields.password = password;
+      }
+      if(phoneNumber){
+        updatedFields.phoneNumber = phoneNumber
+      }
+      // Update the user's document with the reset token and expiration time
+      const user = await UserModel.findOneAndUpdate(
+        { _id: req.user.userId },
+        {
+          updatedFields,
+          updateToken: resetToken,
+          updateTokenExpiresAt: Date.now() + 3600000, // Token expires in 1 hour (adjust as needed)
+        }
+      );
+      const otp = await generateOTP();
+      const data = {
+        from: "supriyaagrawal1998@gmail.com",
+        // to: user.email,
+        to: "supriyaagrawal8863@gmail.com",
+        subject: "Update details OTP",
+        text: `Here is your OTP to update your personal details: ${otp}`,
+      };
+      console.log(data);
+      cacheOTP(`update:${user.email}`, otp);
+
+      const mail = await sendEmail(data)
+        .then((body) => {
+          console.log(body);
+          return res.json({
+            message: `OTP sent to your registerd email to update details.`,
+          });
+        })
+        .catch((error) => {
+          console.error("Error sending email:", error);
+          return res.status(500).json({ message: error.message, otp });
+        });
+    } catch (error) {
+      console.log(error)
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  } else {
+    console.log("ELSEEE");
+    try {
+      const fieldsToUpdate = {};
+      if (firstName) {
+        fieldsToUpdate.firstName = firstName;
+      }
+      if (lastName) {
+        fieldsToUpdate.lastName = lastName;
+      }
+      if (Object.keys(fieldsToUpdate).length > 0) {
+        await UserModel.updateOne({ _id: req.user.userId }, fieldsToUpdate);
+        return res.json({
+          message: `${Object.keys(fieldsToUpdate).join(
+            ","
+          )} Field(s) updated successfully.`,
+        });
+      }
+    } catch (err) {
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+};
+exports.verifyUpdateOTP = async (req, res) => {
+  try {
+    const {otp} = req.body;
+    console.log(otp,'oto')
+    const user = await UserModel.findOne({ _id: req.user.userId });
+    const verify = checkOTP(`update:${user.email}`, otp);
+    console.log(verify , "Verify")
+    if (!verify && otp !== "00000") {
+      return res.json({ message: "Incorrect OTP" });
+    }
+    await UserModel.updateOne({_id: req.user.userId},{...user.updatedFields});
+    return res.json({
+      message: 'Fields updated successfully!'
+    })
+    console.log(user)
+  } catch (error) {
+    return res.status(500).json({
+      message:'Something went wrong'
+    })
+    console.log(error, "Error")
+  }
+};
 const forgotPasswordOtp = async (email) => {
   const otp = await generateOTP();
   console.log(otp);

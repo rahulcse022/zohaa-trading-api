@@ -31,6 +31,20 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please provide Country!'],
     },
+    state: {
+        type: String,
+        default:'',
+        // required: [true, 'Please provide State!'],
+    },
+    city: {
+        type: String,
+        default:'',
+        // required: [true, 'Please provide State!'],
+    },
+    fullAddress: {
+        type:String,
+        default:'',
+    },
     phoneNumber: {
         type: Number,
         required: [true, 'Please provide Phone Number!'],
@@ -59,6 +73,22 @@ const UserSchema = new mongoose.Schema({
     token: String,
     resetPasswordToken: String,
     resetPasswordExpiresAt: Number,
+    updateToken:String,
+    updateTokenExpiresAt: Number,
+    updatedFields: Object,
 });
-
+UserSchema.methods.toJSON = function(){
+    const user = this;
+    const userObject = user.toObject();
+    delete userObject.password;
+    delete userObject.role;
+    delete userObject.token;
+    delete userObject.resetPasswordToken;
+    delete userObject.resetPasswordExpiresAt;
+    delete userObject.tokenId;
+    delete userObject.updatedFields;
+    delete userObject.updateTokenExpiresAt;
+    delete userObject.updateToken;
+    return userObject;
+}
 module.exports = mongoose.model('User', UserSchema);

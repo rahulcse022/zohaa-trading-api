@@ -9,7 +9,6 @@ const UserController = require("../controllers/userController");
 const middlewares = require("../middlewares/middlewares");
 const User = require("../Models/UserModel");
 
-
 router.use(bodyParser.json());
 router.use(
   bodyParser.urlencoded({
@@ -19,6 +18,13 @@ router.use(
 
 router.post("/signup", middlewares.validateSignupData, UserController.signup);
 router.post("/login", middlewares.validateLoginData, UserController.login);
+router.get("/users", middlewares.verifyToken, UserController.getUserProfile);
+router.patch(
+  "/users",
+  middlewares.verifyToken,
+  middlewares.validate(middlewares.validateUpdateFields),
+  UserController.updateUserProfile
+);
 router.post(
   "/forgot-password",
   middlewares.validateEmail,
@@ -29,13 +35,17 @@ router.post(
   middlewares.validateResetPasswordData,
   UserController.resetPassword
 );
+router.post(
+  "/verify-update-otp",
+  middlewares.verifyToken,
+  middlewares.validate(middlewares.verifyUpdateOTP),
+  UserController.verifyUpdateOTP
+);
 
-router.get("/getuserdetails", async (req, res) => {
-  const find = await User.findOne({ email: req.query.email });
-  res.send(find);
-});
-
-
+// router.get("/getuserdetails", async (req, res) => {
+//   const find = await User.findOne({ email: req.query.email });
+//   res.send(find);
+// });
 
 function ensureWebToken(req, res, next) {
   const x_access_token = req.headers["authorization"];

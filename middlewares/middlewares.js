@@ -1,8 +1,10 @@
 const jwt = require("jsonwebtoken");
-const { body } = require("express-validator");
+const { body, validationResult, checkExact, oneOf } = require("express-validator");
 
 const middlewares = {};
-
+middlewares.verifyUpdateOTP = [
+  body("otp").notEmpty().withMessage('Please send otp')
+]
 middlewares.validateSignupData = [
   body("firstName").notEmpty().withMessage("First name is required"),
   body("lastName").notEmpty().withMessage("Last name is required"),
@@ -43,18 +45,51 @@ middlewares.validateResetPasswordData = [
     return true;
   }),
 ];
+middlewares.validateUpdateFields = [
+  body("email").optional().isEmail().withMessage("Invalid email format"),
+  body("firstName")
+    .optional()
+    .notEmpty()
+    .withMessage("First name cannot be updated as empty value"),
+  body("lastName")
+    .optional()
+    .notEmpty()
+    .withMessage("Last name cannot be updated as empty value"),
+  body("phoneNumber")
+    .optional()
+    .notEmpty()
+    .withMessage("Phone number cannot be updated as empty value"),
+  body("password")
+    .optional()
+    .notEmpty()
+    .withMessage("Password cannot be updated as empty value"),
 
+  oneOf(
+    [
+      body("email").exists(),
+      body("firstName").exists(),
+      body("lastName").exists(),
+      body("phoneNumber").exists(),
+      body("password").exists(),
+    ],
+    {
+      message:
+        "At least one of email, firstName, lastName, phoneNumber or password must be provided",
+    }
+  ),
+  checkExact(),
+];
 // Middleware function to verify JWT tokens
 middlewares.verifyToken = (req, res, next) => {
   // Get the token from the request headers, query parameters, or cookies (whichever you prefer)
   const token =
-    req.headers.authorization || req.query.token || req.cookies.token;
+    req.headers.authorization || req.query?.token || req.cookies?.token;
 
   // Check if the token exists
   if (!token) {
     return res.status(401).json({ message: "Token not provided" });
   }
-
+  console.log(token, 'Token')
   // Verify the token
   jwt.verify(
     token.replace("Bearer ", ""),
@@ -74,5 +109,20 @@ middlewares.verifyToken = (req, res, next) => {
     }
   );
 };
+// sequential processing, stops running validations chain if the previous one fails.
+middlewares.validate = function (validations) {
+  return async (req, res, next) => {
+    for (let validation of validations) {
+      const result = await validation.run(req);
+      if (result.errors.length) break;
+    }
 
+    const errors = validationResult(req);
+    if (errors.isEmpty()) {
+      return next();
+    }
+
+    res.status(400).json({ errors: errors.array() });
+  };
+};
 module.exports = middlewares;
