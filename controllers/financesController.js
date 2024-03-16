@@ -17,8 +17,20 @@ exports.getUserFinancialInfo = async (req, res) => {
   }
 };
 exports.updateUserFinancialIndo = async (req, res) => {
-  const info = new FinancesModel({
-    ...req.body,
-    userId: req.user.userId,
-  });
+  try{
+    const info = await FinancesModel.findOneAndUpdate(
+      {
+        userId: req.user.userId,
+      },
+      req.body,
+      { new: true }
+    );
+    return res.json({
+      message: "Financial details updated successfully",
+      data: info,
+    });
+  }catch(error){
+    res.status(500).json({ message: error.message });
+  }
+
 };

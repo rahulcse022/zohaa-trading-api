@@ -5,6 +5,37 @@ const middlewares = {};
 middlewares.verifyUpdateOTP = [
   body("otp").notEmpty().withMessage('Please send otp')
 ]
+middlewares.updateFinancialInfo = [
+  body("portfolioAmount")
+      .optional()
+      .notEmpty()
+      .isNumeric()
+      .withMessage("Please send a valid amount."),
+    body("walletBalance")
+      .optional()
+      .notEmpty()
+      .isNumeric()
+      .withMessage("Please send a valid amount."),
+    body("botFuel")
+      .optional()
+      .notEmpty()
+      .isNumeric()
+      .withMessage("Please send a valid amount."),
+    body("totalWithdrawal")
+      .optional()
+      .notEmpty()
+      .isNumeric()
+      .withMessage("Please send a valid amount."),
+  oneOf([
+    body("portfolioAmount").exists(),
+    body("walletBalance").exists(),
+    body("botFuel").exists(),
+    body("totalWithdrawal").exists(),
+  ], {
+    message: 'Please send valid data to update.'
+  }),
+  checkExact(),
+];
 middlewares.validateSignupData = [
   body("firstName").notEmpty().withMessage("First name is required"),
   body("lastName").notEmpty().withMessage("Last name is required"),

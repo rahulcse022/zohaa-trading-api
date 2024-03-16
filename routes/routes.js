@@ -7,8 +7,7 @@ require("dotenv").config();
 
 const UserController = require("../controllers/userController");
 const middlewares = require("../middlewares/middlewares");
-const User = require("../Models/UserModel");
-const { getUserFinancialInfo } = require("../controllers/financesController");
+const { getUserFinancialInfo, updateUserFinancialIndo } = require("../controllers/financesController");
 
 router.use(bodyParser.json());
 router.use(
@@ -46,6 +45,12 @@ router.get(
   "/users/financial-info",
   middlewares.verifyToken,
   getUserFinancialInfo
+);
+router.patch(
+  "/users/financial-info",
+  middlewares.verifyToken,
+  middlewares.validate(middlewares.updateFinancialInfo),
+  updateUserFinancialIndo
 );
 
 // router.get("/getuserdetails", async (req, res) => {
