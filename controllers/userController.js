@@ -188,12 +188,11 @@ exports.resetPassword = async (req, res) => {
 };
 
 exports.getUserProfile = async (req, res) => {
-  try{
+  try {
     const user = await UserModel.findOne({ _id: req.user.userId });
-    console.log(user)
     res.json(user);
-  }catch(error){
-    return res.status(500).json({message:'Something went wrong'})
+  } catch (error) {
+    return res.status(500).json({ message: "Something went wrong" });
   }
 };
 exports.updateUserProfile = async (req, res) => {
@@ -206,15 +205,35 @@ exports.updateUserProfile = async (req, res) => {
         expiresIn: "1h",
       });
       const updatedFields = {};
-      if(email){
-        updatedFields.email = email;
+      if (email || phoneNumber) {
+        const user= await UserModel.findOne({
+          $or: [
+            { email },
+            { phoneNumber }
+          ]
+        });
+        if (user) {
+          if (user.email === email) {
+            return res.status(400).json({ message: "Email already taken." });
+          }
+          if (user.phoneNumber == phoneNumber) {
+            return res
+              .status(400)
+              .json({ message: "Mobile number already taken." });
+          }
+        }
+        if(email){
+          updatedFields.email = email;
+        }
+        if(phoneNumber){
+          updatedFields.phoneNumber = phoneNumber;
+
+        }
       }
-      if(password){
+      if (password) {
         updatedFields.password = password;
       }
-      if(phoneNumber){
-        updatedFields.phoneNumber = phoneNumber
-      }
+
       // Update the user's document with the reset token and expiration time
       const user = await UserModel.findOneAndUpdate(
         { _id: req.user.userId },
@@ -247,7 +266,7 @@ exports.updateUserProfile = async (req, res) => {
           return res.status(500).json({ message: error.message, otp });
         });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return res.status(500).json({ message: "Internal Server Error" });
     }
   } else {
@@ -275,24 +294,31 @@ exports.updateUserProfile = async (req, res) => {
 };
 exports.verifyUpdateOTP = async (req, res) => {
   try {
-    const {otp} = req.body;
-    console.log(otp,'oto')
+    const { otp } = req.body;
+    console.log(otp, "oto");
     const user = await UserModel.findOne({ _id: req.user.userId });
     const verify = checkOTP(`update:${user.email}`, otp);
-    console.log(verify , "Verify")
+    console.log(verify, "Verify");
     if (!verify && otp !== "00000") {
       return res.json({ message: "Incorrect OTP" });
     }
-    await UserModel.updateOne({_id: req.user.userId},{...user.updatedFields});
+    await UserModel.updateOne(
+      { _id: req.user.userId },
+      {
+        ...user.updatedFields,
+        updateToken: null,
+        updateTokenExpiresAt: null,
+        updatedFields: null,
+      }
+    );
     return res.json({
-      message: 'Fields updated successfully!'
-    })
-    console.log(user)
+      message: "Fields updated successfully!",
+    });
   } catch (error) {
+    console.log(error, "Error");
     return res.status(500).json({
-      message:'Something went wrong'
-    })
-    console.log(error, "Error")
+      message: "Something went wrong",
+    });
   }
 };
 const forgotPasswordOtp = async (email) => {
