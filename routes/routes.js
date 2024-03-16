@@ -55,6 +55,12 @@ router.patch(
 router.patch(
   "/users/financial-info/fuel-bot",
   middlewares.verifyToken,
+  middlewares.validate(middlewares.fuelBot),
+  updateFuelAmount,
+);
+router.patch(
+  "/users/financial-info/fund-wallet",
+  middlewares.verifyToken,
   middlewares.validate(middlewares.fundWallet),
   fundWallet,
 );
