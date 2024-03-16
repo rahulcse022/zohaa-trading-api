@@ -7,6 +7,7 @@ const { cacheOTP, sendEmail, checkOTP } = require("../utils/mails.js");
 const { validationResult } = require("express-validator");
 const UserModel = require("../Models/UserModel");
 const { generateOTP } = require("../utils/mails.js");
+const FinancesModel = require("../Models/financesModel.js");
 
 async function hashPassword(password) {
   const salt = await bcrypt.genSalt(10);
@@ -50,7 +51,8 @@ exports.signup = async (req, res) => {
 
     // Save the user to the database
     await newUser.save();
-
+    const financialInfo =  new FinancesModel({ userId: newUser._id });
+    await financialInfo.save();
     return res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     console.error(error.message);
