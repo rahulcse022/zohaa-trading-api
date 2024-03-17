@@ -13,6 +13,23 @@ middlewares.fundWallet = [
     .notEmpty()
     .withMessage("Please send funded amount."),
 ];
+middlewares.createTicket = [
+  body("description")
+    .notEmpty()
+    .withMessage("Please send ticket description"),
+];
+middlewares.createOrder = [
+  body("position")
+    .notEmpty()
+    .withMessage("Please send order position")
+    .isIn(["Buy", "Sell"])
+    .withMessage("Position value could be either Buy or Sell Only"),
+  body("volume")
+    .notEmpty()
+    .withMessage("Please send volume")
+    .isNumeric()
+    .withMessage("Please send a numeric value for volume"),
+];
 middlewares.updateFinancialInfo = [
   body("portfolioAmount")
       .optional()

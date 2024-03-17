@@ -5,9 +5,11 @@ var bodyParser = require("body-parser");
 require("dotenv").config();
 // ---------------Controllers--------
 
-const UserController = require("../controllers/userController");
+const UserController = require("../controllers/users");
 const middlewares = require("../middlewares/middlewares");
-const { getUserFinancialInfo, updateUserFinancialIndo, updateFuelAmount, fundWallet } = require("../controllers/financesController");
+const { getUserFinancialInfo, updateUserFinancialIndo, updateFuelAmount, fundWallet } = require("../controllers/finances");
+const { createTicket, getUserTickets } = require("../controllers/tickets");
+const { createOrder, getUserOrders } = require("../controllers/orders");
 
 router.use(bodyParser.json());
 router.use(
@@ -64,7 +66,28 @@ router.patch(
   middlewares.validate(middlewares.fundWallet),
   fundWallet,
 );
-
+router.post(
+  "/users/tickets",
+  middlewares.verifyToken,
+  middlewares.validate(middlewares.createTicket),
+  createTicket,
+);
+router.get(
+  "/users/tickets",
+  middlewares.verifyToken,
+  getUserTickets,
+);
+router.post(
+  "/users/orders",
+  middlewares.verifyToken,
+  middlewares.validate(middlewares.createOrder),
+  createOrder,
+);
+router.get(
+  "/users/orders",
+  middlewares.verifyToken,
+  getUserOrders,
+);
 // router.get("/getuserdetails", async (req, res) => {
 //   const find = await User.findOne({ email: req.query.email });
 //   res.send(find);

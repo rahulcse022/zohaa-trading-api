@@ -1,4 +1,4 @@
-const FinancesModel = require("../Models/financesModel");
+const FinancesModel = require("../Models/finances");
 
 exports.getUserFinancialInfo = async (req, res) => {
   try {
