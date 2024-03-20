@@ -62,8 +62,8 @@ middlewares.updateFinancialInfo = [
   checkExact(),
 ];
 middlewares.validateSignupData = [
-  body("firstName").notEmpty().withMessage("First name is required"),
-  body("lastName").notEmpty().withMessage("Last name is required"),
+  body("fullName").notEmpty().withMessage("Full name is required"),
+  // body("lastName").notEmpty().withMessage("Last name is required"),
   body("userName").notEmpty().withMessage("Username is required"),
   body("email").isEmail().withMessage("Invalid email format"),
   body("password")
@@ -77,7 +77,7 @@ middlewares.validateSignupData = [
       return true;
     })
     .withMessage("Passwords must match"),
-  body("country").notEmpty().withMessage("Country is required"),
+  body("address").notEmpty().withMessage("Address is required"),
   body("phoneNumber").notEmpty().withMessage("Phone number is required"),
 ];
 
@@ -103,14 +103,10 @@ middlewares.validateResetPasswordData = [
 ];
 middlewares.validateUpdateFields = [
   body("email").optional().isEmail().withMessage("Invalid email format"),
-  body("firstName")
+  body("fullName")
     .optional()
     .notEmpty()
-    .withMessage("First name cannot be updated as empty value"),
-  body("lastName")
-    .optional()
-    .notEmpty()
-    .withMessage("Last name cannot be updated as empty value"),
+    .withMessage("Full name cannot be updated as empty value"),
   body("phoneNumber")
     .optional()
     .notEmpty()
@@ -119,12 +115,15 @@ middlewares.validateUpdateFields = [
     .optional()
     .notEmpty()
     .withMessage("Password cannot be updated as empty value"),
-
+    body("address")
+    .optional()
+    .notEmpty()
+    .withMessage("Address cannot be updated as empty value"),
   oneOf(
     [
       body("email").exists(),
-      body("firstName").exists(),
-      body("lastName").exists(),
+      body("fullName").exists(),
+      body("address").exists(),
       body("phoneNumber").exists(),
       body("password").exists(),
     ],

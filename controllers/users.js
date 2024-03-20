@@ -21,14 +21,15 @@ async function hashPassword(password) {
 exports.signup = async (req, res) => {
   console.log(req.body);
   const errors = validationResult(req);
+  console.log(errors, 'Errir')
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
   try {
     const {
-      firstName,
-      lastName,
+      fullName,
+      address,
       userName,
       email,
       password,
@@ -40,8 +41,8 @@ exports.signup = async (req, res) => {
 
     // Create a new user document
     const newUser = new UserModel({
-      firstName,
-      lastName,
+      fullName,
+      address,
       userName,
       email,
       password: hashedPassword,
@@ -73,7 +74,7 @@ exports.signup = async (req, res) => {
 // User login API
 exports.login = async (req, res) => {
   const errors = validationResult(req);
-
+  console.log('Received request, re')
   try {
     const { userName, password } = req.body;
 
@@ -101,13 +102,11 @@ exports.login = async (req, res) => {
     // Saving token in the user document
     user.token = token;
     await user.save();
-
+      console.log(user,'User')
     return res.status(200).json({
       message: "User login successful!",
       token,
-      userId: user._id,
-      email: user.email,
-      userName: userName,
+      data: user
     });
   } catch (error) {
     console.error(error);
@@ -198,7 +197,7 @@ exports.getUserProfile = async (req, res) => {
   }
 };
 exports.updateUserProfile = async (req, res) => {
-  const { firstName, lastName, email, password, phoneNumber } = req.body;
+  const { firstName, lastName, email, password, phoneNumber, address, fullName } = req.body;
 
   if (email || password || phoneNumber) {
     try {
@@ -265,7 +264,9 @@ exports.updateUserProfile = async (req, res) => {
         })
         .catch((error) => {
           console.error("Error sending email:", error);
-          return res.status(500).json({ message: error.message, otp });
+          return res
+            .status(500)
+            .json({ message: error.message, otp, isOTPVerification: true });
         });
     } catch (error) {
       console.log(error);
@@ -275,11 +276,11 @@ exports.updateUserProfile = async (req, res) => {
     console.log("ELSEEE");
     try {
       const fieldsToUpdate = {};
-      if (firstName) {
-        fieldsToUpdate.firstName = firstName;
+      if (fullName) {
+        fieldsToUpdate.fullName = fullName;
       }
-      if (lastName) {
-        fieldsToUpdate.lastName = lastName;
+      if (address) {
+        fieldsToUpdate.address = address;
       }
       if (Object.keys(fieldsToUpdate).length > 0) {
         await UserModel.updateOne({ _id: req.user.userId }, fieldsToUpdate);

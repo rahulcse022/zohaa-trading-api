@@ -9,6 +9,10 @@ const OrdersSchema = new mongoose.Schema(
       required: true,
       ref: "User",
     },
+    isPro: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

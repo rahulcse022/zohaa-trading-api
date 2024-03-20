@@ -4,6 +4,7 @@ const { getCurrentDateFilter } = require("../utils/utils");
 exports.getUserOrders = async (req, res) => {
   try {
     const { position, filterBy } = req.query;
+    console.log(filterBy, 'ff')
     console.log(position, filterBy);
     const findData = {
       userId: req.user.userId,
@@ -16,10 +17,11 @@ exports.getUserOrders = async (req, res) => {
       ...findData
     });
     if (orders.length > 0) {
-      return res.json(orders);
+      return res.json({data:orders, message:'Trades fetched'});
     } else {
       return res.status(404).json({
         message: "No orders found",
+        data: []
       });
     }
   } catch (error) {

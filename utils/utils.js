@@ -2,6 +2,9 @@ exports.getTimeDateFilters = (filterBy = "") => {
   if (filterBy === "today") {
     return this.getCurrentDateFilter();
   }
+  if(filterBy === 'history'){
+    return getHistory();
+  }
   return {};
 };
 exports.getCurrentDateFilter = () => {
@@ -20,3 +23,12 @@ exports.getCurrentDateFilter = () => {
     },
   };
 };
+const getHistory = ()=>{
+  const currentDate = new Date();
+  currentDate.setDate(currentDate.getDate() + 1);
+  return {
+    createdAt: {
+      $gte: currentDate,
+    },
+  };
+}
