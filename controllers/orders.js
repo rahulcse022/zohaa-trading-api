@@ -1,5 +1,6 @@
 const Order = require("../Models/orders");
-const { getCurrentDateFilter } = require("../utils/utils");
+const {  getTimeDateFilters } = require("../utils/utils");
+const shortid = require('shortid');
 
 exports.getUserOrders = async (req, res) => {
   try {
@@ -13,7 +14,7 @@ exports.getUserOrders = async (req, res) => {
       findData.position = position;
     }
     const orders = await Order.find({
-      ...getCurrentDateFilter(filterBy),
+      ...getTimeDateFilters(filterBy),
       ...findData
     });
     if (orders.length > 0) {
@@ -30,14 +31,26 @@ exports.getUserOrders = async (req, res) => {
 };
 exports.createOrder = async (req, res) => {
   try {
+    console.log('Request received')
     const { position, volume } = req.body;
-    const order = new Order({ position, volume, userId: req.user.userId });
+    let shortId;
+    while(!shortId){
+      shortId = shortid.generate();
+      const isShortId = await Order.findOne({ shortId });
+      if(isShortId){
+        shortId = "";
+      }
+    }
+    const order = new Order({ position, volume, userId: req.user.userId, shortId });
     await order.save();
+    console.log('Success!', order)
     return res.json({
       message: "Order created successfully",
       data: order,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.log('Error!', error)
+
+    return res.status(500).json({ message: error.message });
   }
 };

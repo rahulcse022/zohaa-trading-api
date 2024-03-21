@@ -21,9 +21,7 @@ middlewares.createTicket = [
 middlewares.createOrder = [
   body("position")
     .notEmpty()
-    .withMessage("Please send order position")
-    .isIn(["Buy", "Sell"])
-    .withMessage("Position value could be either Buy or Sell Only"),
+    .withMessage("Please send order position"),
   body("volume")
     .notEmpty()
     .withMessage("Please send volume")
@@ -173,6 +171,7 @@ middlewares.validate = function (validations) {
     }
 
     const errors = validationResult(req);
+    console.log(errors ,'ERRRR')
     if (errors.isEmpty()) {
       return next();
     }
