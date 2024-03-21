@@ -62,9 +62,19 @@ exports.signup = async (req, res) => {
       console.log("Name := ", Object.keys(error?.keyValue)[0]);
 
       const duplicateFieldName = Object.keys(error?.keyValue)[0];
+      const getLabel = (fieldName)=>{
+        if(fieldName === 'userName'){
+          return 'Username'
+        }
+        if(fieldName === 'email') return 'Email';
+        if(fieldName === 'phoneNumber') return 'Contact Number'
 
+      }
       return res.status(400).json({
         message: "User already registered with this " + duplicateFieldName,
+        errors: {
+          [duplicateFieldName]: `${getLabel(duplicateFieldName)} already taken`
+        }
       });
     }
     return res.status(500).json({ message: "Internal Server Error" });
@@ -74,7 +84,7 @@ exports.signup = async (req, res) => {
 // User login API
 exports.login = async (req, res) => {
   const errors = validationResult(req);
-  console.log('Received request, re')
+  console.log('Received request, re', errors)
   try {
     const { userName, password } = req.body;
 

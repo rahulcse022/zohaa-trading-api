@@ -18,7 +18,7 @@ router.use(
   })
 );
 
-router.post("/signup", middlewares.validateSignupData, UserController.signup);
+router.post("/signup", middlewares.validate(middlewares.validateSignupData), UserController.signup);
 router.post("/login", middlewares.validateLoginData, UserController.login);
 router.get("/users", middlewares.verifyToken, UserController.getUserProfile);
 router.patch(
