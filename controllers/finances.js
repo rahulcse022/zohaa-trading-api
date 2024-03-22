@@ -39,7 +39,7 @@ exports.updateFuelAmount = async (req, res) => {
     const info = await FinancesModel.findOne({
       userId: req.user.userId,
     });
-    info.botFuel += req.body.fueldByAmount;
+    info.botFuel += parseInt(req.body.fueldByAmount);
     await info.save();
     return res.json({
       message: "Financial details updated successfully",
@@ -54,7 +54,7 @@ exports.fundWallet = async (req, res) => {
     const info = await FinancesModel.findOne({
       userId: req.user.userId,
     });
-    info.walletBalance += req.body.walletFundedByAmount;
+    info.walletBalance += parseInt(req.body.walletFundedByAmount);
     await info.save();
     return res.json({
       message: "Financial details updated successfully",
