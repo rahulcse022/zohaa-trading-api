@@ -35,7 +35,7 @@ exports.createOrder = async (req, res) => {
     const { position, volume } = req.body;
     let shortId;
     while(!shortId){
-      shortId = shortid.generate();
+      shortId = Math.floor(100000 + Math.random() * 900000);
       const isShortId = await Order.findOne({ shortId });
       if(isShortId){
         shortId = "";
