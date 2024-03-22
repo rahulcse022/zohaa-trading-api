@@ -7,7 +7,7 @@ require("dotenv").config();
 
 const UserController = require("../controllers/users");
 const middlewares = require("../middlewares/middlewares");
-const { getUserFinancialInfo, updateUserFinancialIndo, updateFuelAmount, fundWallet } = require("../controllers/finances");
+const { getUserFinancialInfo, updateUserFinancialIndo, updateFuelAmount, fundWallet, withdrawWallet } = require("../controllers/finances");
 const { createTicket, getUserTickets } = require("../controllers/tickets");
 const { createOrder, getUserOrders } = require("../controllers/orders");
 
@@ -19,7 +19,7 @@ router.use(
 );
 
 router.post("/signup", middlewares.validate(middlewares.validateSignupData), UserController.signup);
-router.post("/login", middlewares.validateLoginData, UserController.login);
+router.post("/login", middlewares.validate(middlewares.validateLoginData), UserController.login);
 router.get("/users", middlewares.verifyToken, UserController.getUserProfile);
 router.patch(
   "/users",
@@ -65,6 +65,12 @@ router.patch(
   middlewares.verifyToken,
   middlewares.validate(middlewares.fundWallet),
   fundWallet,
+);
+router.patch(
+  "/users/financial-info/withdraw-wallet",
+  middlewares.verifyToken,
+  middlewares.validate(middlewares.fundWallet),
+  withdrawWallet,
 );
 router.post(
   "/users/tickets",

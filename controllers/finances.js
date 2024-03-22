@@ -6,7 +6,7 @@ exports.getUserFinancialInfo = async (req, res) => {
       userId: req.user.userId,
     });
     if (financialInfo) {
-      return res.json(financialInfo);
+      return res.json({ data: financialInfo });
     } else {
       return res.status(404).json({
         message: "Details not found for this user",
@@ -40,6 +40,7 @@ exports.updateFuelAmount = async (req, res) => {
       userId: req.user.userId,
     });
     info.botFuel += parseInt(req.body.fueldByAmount);
+    console.log(info,'Inffooo')
     await info.save();
     return res.json({
       message: "Financial details updated successfully",
@@ -51,11 +52,29 @@ exports.updateFuelAmount = async (req, res) => {
 };
 exports.fundWallet = async (req, res) => {
   try {
-    const info = await FinancesModel.findOne({
-      userId: req.user.userId,
+    console.log(req.body, '>>>')
+   const info = await FinancesModel.findOneAndUpdate(
+      { userId: req.user.userId },
+      { $inc: { walletBalance: parseFloat(req.body.walletFundedByAmount) } }, // Corrected syntax here
+      { new: true },
+    );
+    console.log(info, 'INFOOOOOOOOo`')
+    return res.json({
+      message: "Financial details updated successfully",
+      data: info,
     });
-    info.walletBalance += parseInt(req.body.walletFundedByAmount);
-    await info.save();
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+exports.withdrawWallet = async (req, res) => {
+  try {
+    const decrementBy = parseFloat(req.body.walletFundedByAmount);
+    const info = await FinancesModel.findOneAndUpdate(
+      { userId: req.user.userId },
+      { $inc: { walletBalance: -decrementBy } }, // Corrected syntax here
+      { new: true }
+    );
     return res.json({
       message: "Financial details updated successfully",
       data: info,

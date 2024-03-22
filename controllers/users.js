@@ -49,7 +49,7 @@ exports.signup = async (req, res) => {
       country,
       phoneNumber,
     });
-
+    console.log(newUser, 'New userr')
     // Save the user to the database
     await newUser.save();
     const financialInfo =  new FinancesModel({ userId: newUser._id });
@@ -83,6 +83,7 @@ exports.signup = async (req, res) => {
 
 // User login API
 exports.login = async (req, res) => {
+  console.log('hiiiiiiiiiiiiiiiiiiiiiiiii')
   const errors = validationResult(req);
   console.log('Received request, re', errors)
   try {
@@ -119,7 +120,7 @@ exports.login = async (req, res) => {
       data: user
     });
   } catch (error) {
-    console.error(error);
+    console.error(error, 'ERRORR');
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

@@ -1,6 +1,8 @@
 const Order = require("../Models/orders");
 const {  getTimeDateFilters } = require("../utils/utils");
 const shortid = require('shortid');
+const { updateFuelAmount } = require("./finances");
+const Finance = require("../Models/finances");
 
 exports.getUserOrders = async (req, res) => {
   try {
@@ -42,6 +44,11 @@ exports.createOrder = async (req, res) => {
       }
     }
     const order = new Order({ position, volume, userId: req.user.userId, shortId });
+    const decrementBy = parseFloat(volume)
+    await Finance.findOneAndUpdate(
+      { userId: req.user.userId },
+      { $inc: { botFuel: -decrementBy } } // Corrected syntax here
+    );
     await order.save();
     console.log('Success!', order)
     return res.json({

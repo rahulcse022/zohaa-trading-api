@@ -164,6 +164,7 @@ middlewares.verifyToken = (req, res, next) => {
 };
 // sequential processing, stops running validations chain if the previous one fails.
 middlewares.validate = function (validations) {
+  console.log('Calledddd')
   return async (req, res, next) => {
     for (let validation of validations) {
       const result = await validation.run(req);
