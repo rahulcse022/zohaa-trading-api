@@ -72,7 +72,7 @@ exports.withdrawWallet = async (req, res) => {
     const decrementBy = parseFloat(req.body.walletFundedByAmount);
     const info = await FinancesModel.findOneAndUpdate(
       { userId: req.user.userId },
-      { $inc: { walletBalance: -decrementBy } }, // Corrected syntax here
+      { $inc: { walletBalance: -decrementBy, totalWithdrawal: decrementBy } }, // Corrected syntax here
       { new: true }
     );
     return res.json({
