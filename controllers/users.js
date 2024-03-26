@@ -292,6 +292,26 @@ exports.updateUserProfile = async (req, res) => {
     }
   }
 };
+exports.handleProfileImageUpload = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const profileImage = req.file.path; // Multer saves the file path in req.file.path
+    console.log('Request...')
+    
+    const updatedUser = await UserModel.findByIdAndUpdate(userId, { profileImage }, { new: true });
+    console.log('updatedUser', updatedUser)
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+   return res.status(200).json({ message: 'Profile image updated successfully', data: updatedUser });
+
+    
+  } catch (error) {
+    console.log('Erroir', error)
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+}
 exports.verifyUpdateOTP = async (req, res) => {
   try {
     const { otp } = req.body;

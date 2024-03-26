@@ -10,6 +10,7 @@ const middlewares = require("../middlewares/middlewares");
 const { getUserFinancialInfo, updateUserFinancialIndo, updateFuelAmount, fundWallet, withdrawWallet } = require("../controllers/finances");
 const { createTicket, getUserTickets } = require("../controllers/tickets");
 const { createOrder, getUserOrders } = require("../controllers/orders");
+const upload = require("../utils/upload");
 
 router.use(bodyParser.json());
 router.use(
@@ -94,6 +95,7 @@ router.get(
   middlewares.verifyToken,
   getUserOrders,
 );
+router.post('/users/upload', middlewares.verifyToken,upload.single('profileImage'),UserController.handleProfileImageUpload)
 // router.get("/getuserdetails", async (req, res) => {
 //   const find = await User.findOne({ email: req.query.email });
 //   res.send(find);

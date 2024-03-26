@@ -172,7 +172,6 @@ middlewares.validate = function (validations) {
     }
 
     const errors = validationResult(req);
-    console.log(errors ,'ERRRR')
     if (errors.isEmpty()) {
       return next();
     }
