@@ -21,7 +21,6 @@ async function hashPassword(password) {
 exports.signup = async (req, res) => {
   console.log(req.body);
   const errors = validationResult(req);
-  console.log(errors, 'Errir')
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
@@ -49,10 +48,9 @@ exports.signup = async (req, res) => {
       country,
       phoneNumber,
     });
-    console.log(newUser, 'New userr')
     // Save the user to the database
     await newUser.save();
-    const financialInfo =  new FinancesModel({ userId: newUser._id });
+    const financialInfo = new FinancesModel({ userId: newUser._id });
     await financialInfo.save();
     return res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
@@ -62,19 +60,18 @@ exports.signup = async (req, res) => {
       console.log("Name := ", Object.keys(error?.keyValue)[0]);
 
       const duplicateFieldName = Object.keys(error?.keyValue)[0];
-      const getLabel = (fieldName)=>{
-        if(fieldName === 'userName'){
-          return 'Username'
+      const getLabel = (fieldName) => {
+        if (fieldName === "userName") {
+          return "Username";
         }
-        if(fieldName === 'email') return 'Email';
-        if(fieldName === 'phoneNumber') return 'Contact Number'
-
-      }
+        if (fieldName === "email") return "Email";
+        if (fieldName === "phoneNumber") return "Contact Number";
+      };
       return res.status(400).json({
         message: "User already registered with this " + duplicateFieldName,
         errors: {
-          [duplicateFieldName]: `${getLabel(duplicateFieldName)} already taken`
-        }
+          [duplicateFieldName]: `${getLabel(duplicateFieldName)} already taken`,
+        },
       });
     }
     return res.status(500).json({ message: "Internal Server Error" });
@@ -83,41 +80,29 @@ exports.signup = async (req, res) => {
 
 // User login API
 exports.login = async (req, res) => {
-  console.log('hiiiiiiiiiiiiiiiiiiiiiiiii')
-  const errors = validationResult(req);
-  console.log('Received request, re', errors)
   try {
     const { userName, password } = req.body;
-
     const user = await UserModel.findOne({ userName: userName });
     if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(404).json({ message: "Invalid credentials" });
     }
-
-    // Check if the provided password matches the hashed password in the database
     const passwordMatch = await bcrypt.compare(password, user.password);
-
     if (!passwordMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(404).json({ message: "Invalid credentials" });
     }
-
-    // Generate a JWT token with the user's ID as the payload
     const token = jwt.sign(
       { userId: user._id, userName: user.userName },
-      process.env.JWT_SECRET,
-         );
-
-    // Saving token in the user document
+      process.env.JWT_SECRET
+    );
     user.token = token;
     await user.save();
-      console.log(user,'User')
     return res.status(200).json({
       message: "User login successful!",
       token,
-      data: user
+      data: user,
     });
   } catch (error) {
-    console.error(error, 'ERRORR');
+    console.error(error, "Login error");
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -205,7 +190,15 @@ exports.getUserProfile = async (req, res) => {
   }
 };
 exports.updateUserProfile = async (req, res) => {
-  const { firstName, lastName, email, password, phoneNumber, address, fullName } = req.body;
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    phoneNumber,
+    address,
+    fullName,
+  } = req.body;
 
   if (email || password || phoneNumber) {
     try {
@@ -215,11 +208,8 @@ exports.updateUserProfile = async (req, res) => {
       });
       const updatedFields = {};
       if (email || phoneNumber) {
-        const user= await UserModel.findOne({
-          $or: [
-            { email },
-            { phoneNumber }
-          ]
+        const user = await UserModel.findOne({
+          $or: [{ email }, { phoneNumber }],
         });
         if (user) {
           if (user.email === email) {
@@ -231,12 +221,11 @@ exports.updateUserProfile = async (req, res) => {
               .json({ message: "Mobile number already taken." });
           }
         }
-        if(email){
+        if (email) {
           updatedFields.email = email;
         }
-        if(phoneNumber){
+        if (phoneNumber) {
           updatedFields.phoneNumber = phoneNumber;
-
         }
       }
       if (password) {
