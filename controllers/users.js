@@ -295,12 +295,17 @@ exports.updateUserProfile = async (req, res) => {
 exports.handleProfileImageUpload = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const profileImage = req.file.path; // Multer saves the file path in req.file.path
-    console.log('Request...')
-    
+    const profileImage = req.file.buffer; // Multer saves the file path in req.file.path
+    console.log('Request...', profileImage)
+    // const remoteFilePath = '/public_html/images/' + req.file.filename; // Remote path on FTP server
+    // const ftpConfig = {
+    //   host: 'server2.globaltohosting.com',
+    //   user: 'ftp_username',
+    //   password: 'ftp_password',
+    // };
+  
+    // await uploadFileToFtp(profileImage, remoteFilePath, ftpConfig);
     const updatedUser = await UserModel.findByIdAndUpdate(userId, { profileImage }, { new: true });
-    console.log('updatedUser', updatedUser)
-
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -362,3 +367,21 @@ const forgotPasswordOtp = async (email) => {
     });
   return mail;
 };
+exports.getProfileImage = async (req, res)=>{
+  try{
+    console.log(req.params.id,'Id')
+    const user = await UserModel.findById(req.params.id)
+    console.log(user, 'Userr>>>')
+    if(!user){
+      return res.status(404).json('User not found.');
+    }
+    if(!user.profileImage){
+      return res.status(404).json('Profile image not found.');
+
+    }
+    res.set('Content-Type', 'image/jpg');
+    return res.send({profileImage:user.profileImage});
+  }catch(error){
+    console.log(error, 'ERRR')
+  }
+}

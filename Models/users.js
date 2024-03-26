@@ -85,7 +85,7 @@ const UserSchema = new mongoose.Schema(
     updateToken: String,
     updateTokenExpiresAt: Number,
     updatedFields: Object,
-    profileImage: { type: String } // This field will store the image URL or file path
+    profileImage: { type: Buffer } // This field will store the image URL or file path
   },
   {
     timestamps: true,
